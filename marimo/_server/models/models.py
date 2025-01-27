@@ -118,6 +118,10 @@ class SaveNotebookRequest:
     layout: Optional[Dict[str, Any]] = None
     # persist the file to disk
     persist: bool = True
+    # user id
+    user_id: str = ""
+    # notebook id
+    notebook_id: str = ""
 
     # Validate same length
     def __post_init__(self) -> None:

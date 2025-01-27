@@ -50,6 +50,8 @@ dependencies = [
     "ruff",
     # for packaging.version; not sure what the lower bound is.
     "packaging",
+    "boto3", 
+    "supabase"
 ]
 readme = "README.md"
 license = { file = "LICENSE" }

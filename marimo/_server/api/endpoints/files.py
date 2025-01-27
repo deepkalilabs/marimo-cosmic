@@ -26,6 +26,10 @@ from marimo._server.models.models import (
 )
 from marimo._server.router import APIRouter
 
+import sys
+sys.path.append(os.path.dirname(os.getcwd()))
+from helpers.backend.aws.s3 import s3
+
 if TYPE_CHECKING:
     from starlette.requests import Request
 
@@ -187,8 +191,12 @@ async def save(
     body = await parse_request(request, cls=SaveNotebookRequest)
     session = app_state.require_current_session()
     contents = session.app_file_manager.save(body)
+    response = s3.save_or_update_notebook(body.notebook_id, body.user_id, contents, body.filename)
 
-    return PlainTextResponse(content=contents)
+    if response.get('status_code') == 200:
+        return PlainTextResponse(content=contents)
+    else:
+        return PlainTextResponse(content=f"Failed to save notebook. Error: {response.get('body')}")
 
 
 @router.post("/copy")

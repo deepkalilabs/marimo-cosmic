@@ -21,7 +21,7 @@ import { useHotkey } from "../hooks/useHotkey";
 import { CellArray } from "../components/editor/renderers/CellArray";
 import { RuntimeState } from "./kernel/RuntimeState";
 import { CellsRenderer } from "../components/editor/renderers/cells-renderer";
-import { useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   useRunAllCells,
   useRunStaleCells,

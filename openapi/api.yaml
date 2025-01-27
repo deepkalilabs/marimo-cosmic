@@ -1697,8 +1697,12 @@ components:
           items:
             type: string
           type: array
+        notebookId:
+          type: string
         persist:
           type: boolean
+        userId:
+          type: string
       required:
       - cellIds
       - codes
@@ -1706,6 +1710,8 @@ components:
       - configs
       - filename
       - persist
+      - userId
+      - notebookId
       type: object
     SaveUserConfigurationRequest:
       properties:
@@ -1968,7 +1974,7 @@ components:
       type: object
 info:
   title: marimo API
-  version: 0.10.13
+  version: 0.10.17
 openapi: 3.1.0
 paths:
   /@file/{filename_and_length}:
