@@ -31,6 +31,7 @@ import { PackagesPanel } from "../panels/packages-panel";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { TracingPanel } from "../panels/tracing-panel";
+import HomePanel from "../panels/home-panel";
 
 const LazyTerminal = React.lazy(() => import("@/components/terminal/terminal"));
 
@@ -39,6 +40,10 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const { setIsSidebarOpen, setIsTerminalOpen } = useChromeActions();
   const sidebarRef = React.useRef<ImperativePanelHandle>(null);
   const terminalRef = React.useRef<ImperativePanelHandle>(null);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, []);
 
   // sync sidebar
   useEffect(() => {
@@ -142,6 +147,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
             </Button>
           </div>
           <TooltipProvider>
+            {selectedPanel === "home" && <HomePanel />}
             {selectedPanel === "files" && <FileExplorerPanel />}
             {selectedPanel === "errors" && <ErrorsPanel />}
             {selectedPanel === "variables" && <VariablePanel />}
