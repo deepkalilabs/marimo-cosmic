@@ -15,9 +15,11 @@ import {
   BoxIcon,
   BotMessageSquareIcon,
   ActivityIcon,
+  HomeIcon,
 } from "lucide-react";
 
 export type PanelType =
+  | "home"
   | "files"
   | "errors"
   | "variables"
@@ -41,6 +43,12 @@ export interface PanelDescriptor {
 }
 
 export const PANELS: PanelDescriptor[] = [
+  {
+    type: "home",
+    Icon: HomeIcon,
+    tooltip: "Home",
+    position: "sidebar",
+  },
   {
     type: "files",
     Icon: FolderTreeIcon,

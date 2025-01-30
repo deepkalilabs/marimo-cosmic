@@ -12,7 +12,7 @@ export const FilenameForm = ({
   return (
     <FilenameInput
       placeholderText={
-        filename ? Paths.basename(filename) : "untitled marimo app"
+        filename ? Paths.basename(filename) : "untitled cosmic app"
       }
       initialValue={filename}
       onNameChange={setFilename}

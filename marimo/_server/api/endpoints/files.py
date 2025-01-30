@@ -191,7 +191,23 @@ async def save(
     body = await parse_request(request, cls=SaveNotebookRequest)
     session = app_state.require_current_session()
     contents = session.app_file_manager.save(body)
-    response = s3.save_or_update_notebook(body.notebook_id, body.user_id, contents, body.filename)
+    
+    response = s3.save_or_update_notebook(
+        notebook_id=body.notebook_id, 
+        user_id=body.user_id, 
+        contents=contents, 
+        filename=body.filename, 
+        type="marimo_notebook"
+    )
+
+    python_contents = "\n".join(body.codes) if len(body.codes) > 0 else ""
+    response = s3.save_or_update_notebook(
+        notebook_id=body.notebook_id, 
+        user_id=body.user_id, 
+        contents=python_contents, 
+        filename=body.filename, 
+        type="python_script"
+    )
 
     if response.get('status_code') == 200:
         return PlainTextResponse(content=contents)

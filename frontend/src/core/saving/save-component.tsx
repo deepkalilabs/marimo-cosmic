@@ -98,8 +98,6 @@ export function useSaveNotebook({ kioskMode, appConfig }: SaveNotebookProps) {
     const notebookId = urlParams.get("notebook_id") || "";
     setUserId(userId);
     setNotebookId(notebookId);
-    console.log("userId", userId);
-    console.log("notebookId", notebookId);
   }, []);
 
 
