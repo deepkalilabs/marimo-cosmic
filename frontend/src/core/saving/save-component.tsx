@@ -20,12 +20,12 @@ import { useEvent } from "../../hooks/useEvent";
 import { Logger } from "../../utils/Logger";
 import { useAutoSave } from "./useAutoSave";
 import { getSerializedLayout, useLayoutState } from "../layout/layout";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { formatAll } from "../codemirror/format";
 import { useFilename, useUpdateFilename } from "./filename";
 import { connectionAtom } from "../network/connection";
 import { autoSaveConfigAtom } from "../config/config";
-import { lastSavedNotebookAtom, needsSaveAtom } from "./state";
+import { lastSavedNotebookAtom, needsSaveAtom, notebookIdAtom, userIdAtom } from "./state";
 import { Tooltip } from "@/components/ui/tooltip";
 import { RecoveryButton } from "@/components/editor/RecoveryButton";
 import { renderShortcut } from "@/components/shortcuts/renderShortcut";
@@ -38,9 +38,6 @@ interface SaveNotebookProps {
   kioskMode: boolean;
   appConfig: AppConfig;
 }
-
-const userIdAtom = atom<string>("");
-const notebookIdAtom = atom<string>("");
 
 export const SaveComponent = ({ kioskMode, appConfig }: SaveNotebookProps) => {
   const filename = useFilename();
@@ -89,17 +86,9 @@ export function useSaveNotebook({ kioskMode, appConfig }: SaveNotebookProps) {
   const updateFilename = useUpdateFilename();
   const needsSave = useAtomValue(needsSaveAtom);
   const layout = useLayoutState();
-  const [userId, setUserId] = useAtom(userIdAtom);
-  const [notebookId, setNotebookId] = useAtom(notebookIdAtom);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("user_id") || "";
-    const notebookId = urlParams.get("notebook_id") || "";
-    setUserId(userId);
-    setNotebookId(notebookId);
-  }, []);
-
+  const userId = useAtomValue(userIdAtom);
+  const notebookId = useAtomValue(notebookIdAtom);
 
   // Save the notebook with the given filename
   const saveNotebook = useEvent((filename: string, userInitiated: boolean) => {
@@ -114,6 +103,10 @@ export function useSaveNotebook({ kioskMode, appConfig }: SaveNotebookProps) {
 
     // Don't save if there are no cells
     if (codes.length === 0) {
+      return;
+    }
+
+    if (!userId || !notebookId) {
       return;
     }
 

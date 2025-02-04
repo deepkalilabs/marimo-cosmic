@@ -204,7 +204,7 @@ const DEFAULT_HOT_KEY = {
   "cell.aiCompletion": {
     name: "AI completion",
     group: "Editing",
-    key: "Mod-Shift-e",
+    key: "Mod-k",
   },
   "cell.cellActions": {
     name: "Open cell actions",
@@ -237,7 +237,7 @@ const DEFAULT_HOT_KEY = {
   "markdown.link": {
     name: "Convert to Link",
     group: "Markdown",
-    key: "Mod-k",
+    key: "Mod-Shift-l",
   },
   "markdown.orderedList": {
     name: "Convert to Ordered list",
@@ -295,7 +295,7 @@ const DEFAULT_HOT_KEY = {
   "global.commandPalette": {
     name: "Show command palette",
     group: "Other",
-    key: "Mod-k",
+    key: "Mod-shift-k",
   },
   "global.runStale": {
     name: "Run all stale cells",

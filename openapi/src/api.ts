@@ -2653,6 +2653,8 @@ export interface components {
         };
         RenameFileRequest: {
             filename: string;
+            notebookId: string;
+            userId: string;
         };
         RenameRequest: {
             filename: string;

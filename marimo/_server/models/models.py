@@ -73,6 +73,8 @@ class ReadCodeResponse:
 @dataclass
 class RenameFileRequest:
     filename: str
+    user_id: str
+    notebook_id: str
 
     def as_execution_request(self) -> RenameRequest:
         return RenameRequest(filename=os.path.abspath(self.filename))

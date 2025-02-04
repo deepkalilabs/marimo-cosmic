@@ -22,10 +22,13 @@ from marimo._server.models.models import (
 )
 from marimo._server.router import APIRouter
 from marimo._types.ids import ConsumerId
+from marimo._server.api.endpoints.packages import _get_package_manager
+from typing import List
 
 import sys
 sys.path.append(os.path.dirname(os.getcwd()))
 from helpers.backend.aws.s3 import s3
+from helpers.backend.supabase import notebooks
 
 if TYPE_CHECKING:
     from starlette.requests import Request
@@ -111,6 +114,12 @@ async def rename_file(
             app_state.require_current_session_id(), prev_path, new_path
         )
 
+    notebooks.rename_notebook(
+        notebook_id=body.notebook_id, 
+        user_id=body.user_id,
+        new_path=body.filename,
+    )
+
     return SuccessResponse()
 
 
@@ -134,26 +143,28 @@ async def save(
                     schema:
                         type: string
     """
+    aws_contents = {}
     app_state = AppState(request)
     body = await parse_request(request, cls=SaveNotebookRequest)
     session = app_state.require_current_session()
     contents = session.app_file_manager.save(body)
-    
+
+    aws_contents["marimo_notebook.py"] = contents
+    aws_contents["requirements.txt"] = _get_dependencies(request)
+    aws_contents["python_script.py"] = "\n".join(body.codes) if len(body.codes) > 0 else ""
+
     response = s3.save_or_update_notebook(
         notebook_id=body.notebook_id, 
         user_id=body.user_id, 
-        contents=contents, 
-        filename=body.filename, 
-        type="marimo_notebook"
+        contents=aws_contents, 
+        project_name=body.filename,
     )
 
-    python_contents = "\n".join(body.codes) if len(body.codes) > 0 else ""
-    response = s3.save_or_update_notebook(
+    notebooks.save_notebook(
         notebook_id=body.notebook_id, 
         user_id=body.user_id, 
-        contents=python_contents, 
-        filename=body.filename, 
-        type="python_script"
+        url=response.get('url'), 
+        project_name=body.filename,
     )
 
     if response.get('status_code') == 200:
@@ -161,6 +172,11 @@ async def save(
     else:
         return PlainTextResponse(content=f"Failed to save notebook. Error: {response.get('body')}")
 
+def _get_dependencies(request: Request) -> List[str]:
+    # TODO: Exclude base marimo packages from the dependencies
+    package_manager = _get_package_manager(request)
+    all_packages = package_manager.list_packages()
+    return "\n".join([f"{package.name}>={package.version}" for package in all_packages])
 
 @router.post("/copy")
 @requires("edit")

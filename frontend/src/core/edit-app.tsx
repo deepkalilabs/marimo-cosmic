@@ -21,7 +21,7 @@ import { useHotkey } from "../hooks/useHotkey";
 import { CellArray } from "../components/editor/renderers/CellArray";
 import { RuntimeState } from "./kernel/RuntimeState";
 import { CellsRenderer } from "../components/editor/renderers/cells-renderer";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   useRunAllCells,
   useRunStaleCells,
@@ -36,7 +36,7 @@ import { Paths } from "@/utils/paths";
 import { useTogglePresenting } from "./layout/useTogglePresenting";
 import { usePrevious } from "@dnd-kit/utilities";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { lastSavedNotebookAtom } from "./saving/state";
+import { lastSavedNotebookAtom, notebookIdAtom, userIdAtom } from "./saving/state";
 
 interface AppProps {
   /**
@@ -53,11 +53,8 @@ interface AppProps {
   hideControls?: boolean;
 }
 
-export const EditApp: React.FC<AppProps> = ({
-  userConfig,
-  appConfig,
-  hideControls = false,
-}) => {
+
+export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
   useJotaiEffect(cellIdsAtom, CellEffects.onCellIdsChange);
 
   const { setCells, mergeAllColumns } = useCellActions();
@@ -70,6 +67,8 @@ export const EditApp: React.FC<AppProps> = ({
   const isEditing = viewState.mode === "edit";
   const isPresenting = viewState.mode === "present";
   const isRunning = useAtomValue(notebookIsRunningAtom);
+  const setUserId = useSetAtom(userIdAtom);
+  const setNotebookId = useSetAtom(notebookIdAtom);
 
   // Initialize RuntimeState event-listeners
   useEffect(() => {
@@ -77,6 +76,14 @@ export const EditApp: React.FC<AppProps> = ({
     return () => {
       RuntimeState.INSTANCE.stop();
     };
+  }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("user_id") || "";
+    const notebookId = urlParams.get("notebook_id") || "";
+    setUserId(userId);
+    setNotebookId(notebookId);
   }, []);
 
   const { connection } = useMarimoWebSocket({
@@ -164,19 +171,17 @@ export const EditApp: React.FC<AppProps> = ({
           </CellsRenderer>
         )}
       </AppContainer>
-      {!hideControls && (
-        <TooltipProvider>
-          <Controls
-            presenting={isPresenting}
-            onTogglePresenting={togglePresenting}
-            onInterrupt={sendInterrupt}
-            onRun={runStaleCells}
+      <TooltipProvider>
+        <Controls
+          presenting={isPresenting}
+          onTogglePresenting={togglePresenting}
+          onInterrupt={sendInterrupt}
+          onRun={runStaleCells}
             closed={connection.state === WebSocketState.CLOSED}
             running={isRunning}
             appConfig={appConfig}
           />
         </TooltipProvider>
-      )}
-    </>
+      </> 
   );
 };
