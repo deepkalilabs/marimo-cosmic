@@ -1,5 +1,5 @@
 /* Copyright 2024 Marimo. All rights reserved. */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { sendComponentValues, sendInterrupt } from "@/core/network/requests";
 
@@ -36,12 +36,13 @@ import { Paths } from "@/utils/paths";
 import { useTogglePresenting } from "./layout/useTogglePresenting";
 import { usePrevious } from "@dnd-kit/utilities";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { lastSavedNotebookAtom } from "./saving/state";
+import { lastSavedNotebookAtom, notebookIdAtom, userIdAtom } from "./saving/state";
 
 interface AppProps {
   userConfig: UserConfig;
   appConfig: AppConfig;
 }
+
 
 export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
   useJotaiEffect(cellIdsAtom, CellEffects.onCellIdsChange);
@@ -56,6 +57,8 @@ export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
   const isEditing = viewState.mode === "edit";
   const isPresenting = viewState.mode === "present";
   const isRunning = useAtomValue(notebookIsRunningAtom);
+  const setUserId = useSetAtom(userIdAtom);
+  const setNotebookId = useSetAtom(notebookIdAtom);
 
   // Initialize RuntimeState event-listeners
   useEffect(() => {
@@ -63,6 +66,14 @@ export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
     return () => {
       RuntimeState.INSTANCE.stop();
     };
+  }, []);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("user_id") || "";
+    const notebookId = urlParams.get("notebook_id") || "";
+    setUserId(userId);
+    setNotebookId(notebookId);
   }, []);
 
   const { connection } = useMarimoWebSocket({

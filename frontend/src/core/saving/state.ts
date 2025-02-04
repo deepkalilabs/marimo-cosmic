@@ -17,6 +17,9 @@ export const lastSavedNotebookAtom = atom<LastSavedNotebook | undefined>(
   undefined,
 );
 
+export const userIdAtom = atom<string>("");
+export const notebookIdAtom = atom<string>("");
+
 export const needsSaveAtom = atom((get) => {
   const lastSavedNotebook = get(lastSavedNotebookAtom);
   const state = get(notebookAtom);

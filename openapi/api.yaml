@@ -1618,8 +1618,14 @@ components:
       properties:
         filename:
           type: string
+        notebookId:
+          type: string
+        userId:
+          type: string
       required:
       - filename
+      - userId
+      - notebookId
       type: object
     RenameRequest:
       properties:

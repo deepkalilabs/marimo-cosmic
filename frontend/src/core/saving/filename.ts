@@ -11,6 +11,7 @@ import { WebSocketState } from "../websocket/types";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
 import { connectionAtom } from "../network/connection";
 import { getAppConfig } from "../config/config";
+import { userIdAtom, notebookIdAtom } from "./state";
 
 const filenameAtom = atom<string | null>(getFilenameFromDOM());
 
@@ -22,6 +23,8 @@ export function useUpdateFilename() {
   const [connection] = useAtom(connectionAtom);
   const setFilename = useSetAtom(filenameAtom);
   const { openAlert } = useImperativeModal();
+  const userId = useAtomValue(userIdAtom);
+  const notebookId = useAtomValue(notebookIdAtom);
 
   const handleFilenameChange = useEvent(async (name: string) => {
     const appConfig = getAppConfig();
@@ -38,7 +41,7 @@ export function useUpdateFilename() {
       }
     });
 
-    return sendRename({ filename: name })
+    return sendRename({ filename: name, userId, notebookId })
       .then(() => {
         setFilename(name);
         // Set document title: app_title takes precedence, then filename, then default

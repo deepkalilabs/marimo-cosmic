@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 
 # Install dependencies (including dev extras) and run frontend build
+# Install uv
+RUN pip install uv
 RUN make fe
 RUN pip install -e ".[dev]"
 

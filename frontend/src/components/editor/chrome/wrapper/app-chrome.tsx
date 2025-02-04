@@ -41,10 +41,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const sidebarRef = React.useRef<ImperativePanelHandle>(null);
   const terminalRef = React.useRef<ImperativePanelHandle>(null);
 
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, []);
-
   // sync sidebar
   useEffect(() => {
     if (!sidebarRef.current) {
@@ -68,6 +64,12 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       });
     });
   }, [isSidebarOpen]);
+
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, []);
+
 
   // sync terminal
   useEffect(() => {
