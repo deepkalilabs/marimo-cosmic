@@ -176,7 +176,7 @@ def _get_dependencies(request: Request) -> List[str]:
     # TODO: Exclude base marimo packages from the dependencies
     package_manager = _get_package_manager(request)
     all_packages = package_manager.list_packages()
-    return "\n".join([f"{package.name}>={package.version}" for package in all_packages])
+    return "\n".join([f"{package.name}" for package in all_packages])
 
 @router.post("/copy")
 @requires("edit")
