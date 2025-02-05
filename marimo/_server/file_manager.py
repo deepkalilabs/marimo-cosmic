@@ -32,6 +32,7 @@ class AppFileManager:
     ) -> None:
         self.filename = filename
         self._default_width: WidthType | None = default_width
+        LOGGER.info(f"AppFileManager init: {self.filename} | {self.path}")
         self.app = self._load_app(self.path)
 
     @staticmethod
