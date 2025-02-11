@@ -51,9 +51,82 @@
         });
         resizeObserver.observe(obj.contentWindow.document.body);
       }
+
+      async function __fetchAndSetConfig() {
+        try {
+          const searchParamsString = window.location.search;
+          console.log("🔍 Search params:", searchParamsString);
+          
+          let response;
+          if (window.location.hostname.includes("trycosmic.ai")) {
+            response = await fetch(`https://ide.trycosmic.ai/edit${searchParamsString}`);
+          } else {
+            response = await fetch(`http://localhost:2718/${searchParamsString}`);
+            // response = await fetch(`https://ide.trycosmic.ai/edit${searchParamsString}`);
+          }
+          
+          const htmlText = await response.text();
+          const parser = new DOMParser();
+          const serverDoc = parser.parseFromString(htmlText, 'text/html');
+
+          const copyElements = [
+            "marimo-filename",
+            "marimo-version",
+            "marimo-mode",
+            "marimo-user-config",
+            "marimo-app-config",
+            "marimo-server-token"
+          ];
+          
+          copyElements.forEach((id) => {
+            const existingElement = document.querySelector(id);
+            if (existingElement) {
+              existingElement.remove();
+            }
+            
+            const newElement = serverDoc.querySelector(id);
+            if (newElement) {
+              document.head.appendChild(newElement);
+            } else {
+              console.warn(`Element ${id} not found in server response`);
+            }
+          });
+
+          // Set the title using multiple fallback options
+          const serverTitle = serverDoc.querySelector("title");
+
+          if (serverTitle && !serverTitle.textContent?.includes('{{')) {
+            document.title = serverTitle.textContent;
+          } else {
+            const filenameElement = document.querySelector("marimo-filename");
+            const filename = filenameElement?.textContent;
+            
+            if (filename && !filename.includes('{{')) {
+              document.title = filename.split(".py")[0];
+            } else {
+              const urlParams = new URLSearchParams(document.location.href.split('?')[1]);
+              const fileFromUrl = urlParams.get('file');
+              
+              if (fileFromUrl) {
+                document.title = fileFromUrl.split(".py")[0];
+              } else {
+                document.title = "Marimo Notebook";
+              }
+            }
+          }
+
+          const parser1 = new DOMParser();
+          const serverDoc1 = parser1.parseFromString(document.body.outerHTML, 'text/html');
+        } catch (e) {
+          console.error('❌ Failed to fetch and copy elements:', e);
+        }
+      }
+
+      __fetchAndSetConfig();
+
     </script>
-    <marimo-filename hidden>{{ filename }}</marimo-filename>
-    <marimo-mode data-mode='{{ mode }}' hidden></marimo-mode>
+  <marimo-filename hidden>{{ filename }}</marimo-filename>
+    <marimo-mode data-mode='edit' hidden></marimo-mode>
     <marimo-version data-version='{{ version }}' hidden></marimo-version>
     <marimo-user-config data-config='{{ user_config }}' data-overrides='{{ config_overrides }}' hidden></marimo-user-config>
     <marimo-app-config data-config='{{ app_config }}' hidden></marimo-app-config>

@@ -27,7 +27,7 @@ import {
   useRunStaleCells,
 } from "../components/editor/cell/useRunCells";
 import { cn } from "@/utils/cn";
-import { useFilename } from "./saving/filename";
+import { filenameAtom } from "./saving/filename";
 import { getSessionId } from "./kernel/session";
 import { AppHeader } from "@/components/editor/header/app-header";
 import { AppContainer } from "../components/editor/app-container";
@@ -61,7 +61,7 @@ export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
   const viewState = useAtomValue(viewStateAtom);
   const numColumns = useAtomValue(numColumnsAtom);
   const hasCells = useAtomValue(hasCellsAtom);
-  const filename = useFilename();
+  const [filename, setFilename] = useAtom(filenameAtom);
   const setLastSavedNotebook = useSetAtom(lastSavedNotebookAtom);
 
   const isEditing = viewState.mode === "edit";
@@ -82,8 +82,10 @@ export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get("user_id") || "";
     const notebookId = urlParams.get("notebook_id") || "";
+    const filename = urlParams.get("file") || "";
     setUserId(userId);
     setNotebookId(notebookId);
+    setFilename(filename);
   }, []);
 
   const { connection } = useMarimoWebSocket({
@@ -102,6 +104,7 @@ export const EditApp: React.FC<AppProps> = ({ userConfig, appConfig }) => {
   useEffect(() => {
     // Set document title: app_title takes precedence, then filename, then default
     document.title =
+      filename ||
       appConfig.app_title ||
       Paths.basename(filename ?? "") ||
       "Untitled Notebook";
