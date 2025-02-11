@@ -1,7 +1,6 @@
 /* Copyright 2024 Marimo. All rights reserved. */
 
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { getFilenameFromDOM } from "../dom/htmlUtils";
 import { sendRename } from "../network/requests";
 import { Paths } from "@/utils/paths";
 import { updateQueryParams } from "@/utils/urls";
@@ -13,7 +12,7 @@ import { connectionAtom } from "../network/connection";
 import { getAppConfig } from "../config/config";
 import { userIdAtom, notebookIdAtom } from "./state";
 
-const filenameAtom = atom<string | null>(getFilenameFromDOM());
+export const filenameAtom = atom<string | null>("");
 
 export function useFilename() {
   return useAtomValue(filenameAtom);
@@ -21,7 +20,7 @@ export function useFilename() {
 
 export function useUpdateFilename() {
   const [connection] = useAtom(connectionAtom);
-  const setFilename = useSetAtom(filenameAtom);
+  const [filename, setFilename] = useAtom(filenameAtom);
   const { openAlert } = useImperativeModal();
   const userId = useAtomValue(userIdAtom);
   const notebookId = useAtomValue(notebookIdAtom);
@@ -46,7 +45,7 @@ export function useUpdateFilename() {
         setFilename(name);
         // Set document title: app_title takes precedence, then filename, then default
         document.title =
-          appConfig.app_title || Paths.basename(name) || "Untitled Notebook";
+          filename?.split(".")[0] || appConfig.app_title || Paths.basename(name) || "Untitled Notebook";
         return name;
       })
       .catch((error) => {

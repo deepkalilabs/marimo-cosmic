@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN make py && make fe
+RUN make py
 
 RUN mkdir -p data && \
     chown -R appuser:appuser .
@@ -25,7 +25,7 @@ EXPOSE $PORT
 
 ENV HOST=0.0.0.0
 
-CMD marimo edit --no-token -p $PORT --host $HOST
+CMD marimo edit --no-token -p $PORT --host $HOST --headless
 
 # # -data entry point
 # FROM base AS data
