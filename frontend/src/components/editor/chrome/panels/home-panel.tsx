@@ -5,10 +5,13 @@ export default function HomePanel() {
     const name = searchParams.get('name') || '';
     const id = searchParams.get('id') || '';
     const [error, setError] = useState<string | null>(null);
+    const isDev = process.env.NODE_ENV === "development";
 
     const handleConfirm = () => {
         console.log("handleConfirm", id, name);
-        const notebookUrl = "http://localhost:3000/dashboard/projects/"
+        
+        const notebookUrl = isDev ? "http://localhost:3000/dashboard/projects/" : "https://trycosmic.ai/dashboard/projects/";
+
         try {
             window.location.replace(notebookUrl);
         } catch (e) {
