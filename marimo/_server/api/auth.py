@@ -101,23 +101,25 @@ def _parse_basic_auth_header(
 
 
 def raise_basic_auth_error() -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authorization header required",
-        headers={"WWW-Authenticate": "Basic"},
-    )
+    pass
+    # return HTTPException(
+    #     status_code=status.HTTP_401_UNAUTHORIZED,
+    #     detail="Authorization header required",
+    #     headers={"WWW-Authenticate": "Basic"},
+    # )
 
 
 def on_auth_error(
     request: HTTPConnection, error: AuthenticationError
 ) -> JSONResponse:
-    del request
-    del error
-    return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        content={"detail": "Authorization header required"},
-        headers={"WWW-Authenticate": "Basic"},
-    )
+    # del request
+    # del error
+    pass
+    # return JSONResponse(
+    #     status_code=status.HTTP_401_UNAUTHORIZED,
+    #     content={"detail": "Authorization header required"},
+    #     headers={"WWW-Authenticate": "Basic"},
+    # )
 
 
 # This is random/new for each server instance

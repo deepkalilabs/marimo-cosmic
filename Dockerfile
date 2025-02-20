@@ -17,8 +17,8 @@ COPY . .
 
 RUN make py
 
-RUN mkdir -p data && \
-    chown -R appuser:appuser .
+# RUN mkdir -p data && \
+#     chown -R appuser:appuser .
 
 ENV PORT=2718
 EXPOSE $PORT

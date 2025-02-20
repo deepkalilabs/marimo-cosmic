@@ -91,6 +91,10 @@ class AppFileRouter(abc.ABC):
         if key.startswith(AppFileRouter.NEW_FILE):
             return AppFileManager(None, default_width)
 
+        if not os.path.exists(key):
+            f = open(key, "w")
+            f.close()
+
         if os.path.exists(key):
             return AppFileManager(key, default_width)
 

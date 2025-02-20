@@ -26,6 +26,7 @@ from marimo._server.api.endpoints.packages import _get_package_manager
 from typing import List
 
 import sys
+import os
 sys.path.append(os.path.dirname(os.getcwd()))
 from helpers.backend.aws.s3 import s3
 from helpers.backend.supabase import notebooks
