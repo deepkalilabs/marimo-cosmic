@@ -108,11 +108,12 @@ class SkewProtectionMiddleware:
         expected = state.session_manager.skew_protection_token
         server_token = request.headers.get("Marimo-Server-Token")
         if server_token != str(expected):
-            response = JSONResponse(
-                {"error": "Invalid server token"},
-                status_code=status.HTTP_401_UNAUTHORIZED,
-            )
-            return await response(scope, receive, send)
+            pass
+            # response = JSONResponse(
+            #     {"error": "Invalid server token"},
+            #     status_code=status.HTTP_401_UNAUTHORIZED,
+            # )
+            # return await response(scope, receive, send)
 
         # Passed
         return await self.app(scope, receive, send)

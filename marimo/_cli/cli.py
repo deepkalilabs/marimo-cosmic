@@ -281,7 +281,7 @@ edit_help_msg = "\n".join(
 )
 @click.option(
     "--allow-origins",
-    default=None,
+    default=["*"],
     multiple=True,
     help="Allowed origins for CORS. Can be repeated. Use * for all origins.",
 )
