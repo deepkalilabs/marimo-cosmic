@@ -1,16 +1,22 @@
 import { useState } from "react";
 
 export default function HomePanel() {
-    const searchParams = new URLSearchParams(window.location.href);
-    const name = searchParams.get('name') || '';
-    const id = searchParams.get('id') || '';
+    const url = new URL(window.location.href);
+    const name = url.searchParams.get('file') || '';
+    const id = url.searchParams.get('id') || '';
+    const notebook_id = url.searchParams.get('notebook_id') || '';
     const [error, setError] = useState<string | null>(null);
     const isDev = process.env.NODE_ENV === "development";
 
     const handleConfirm = () => {
-        console.log("handleConfirm", id, name);
+        console.log("handleConfirm", id, name, notebook_id);
+
+        // notebook/d3593113-a04d-43f2-a6d6-491fc14971a1/settings?name=posthog-recipe.py
         
-        const notebookUrl = isDev ? "http://localhost:3000/dashboard/projects/" : "https://trycosmic.ai/dashboard/projects/";
+        const notebookUrl = isDev ? 
+            `http://localhost:3000/dashboard/notebook/${notebook_id}/settings?name=${name}` 
+            :
+            `https://trycosmic.ai/dashboard/notebook/${notebook_id}/settings?name=${name}`;
 
         try {
             window.location.replace(notebookUrl);

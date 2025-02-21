@@ -2,7 +2,7 @@
 import { getFeatureFlag } from "@/core/config/feature-flag";
 import {
   XCircleIcon,
-  FolderTreeIcon,
+  // FolderTreeIcon,
   FunctionSquareIcon,
   NetworkIcon,
   ScrollTextIcon,
@@ -49,12 +49,12 @@ export const PANELS: PanelDescriptor[] = [
     tooltip: "Home",
     position: "sidebar",
   },
-  {
-    type: "files",
-    Icon: FolderTreeIcon,
-    tooltip: "View files",
-    position: "sidebar",
-  },
+  // {
+  //   type: "files",
+  //   Icon: FolderTreeIcon,
+  //   tooltip: "View files",
+  //   position: "sidebar",
+  // },
   {
     type: "variables",
     Icon: FunctionSquareIcon,

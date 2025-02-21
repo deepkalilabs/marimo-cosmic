@@ -20,7 +20,7 @@ import { DependencyGraphPanel } from "@/components/editor/chrome/panels/dependen
 import { VariablePanel } from "../panels/variable-panel";
 import { LogsPanel } from "../panels/logs-panel";
 import { DocumentationPanel } from "../panels/documentation-panel";
-import { FileExplorerPanel } from "../panels/file-explorer-panel";
+// import { FileExplorerPanel } from "../panels/file-explorer-panel";
 import { SnippetsPanel } from "../panels/snippets-panel";
 import { ErrorBoundary } from "../../boundary/ErrorBoundary";
 import { DataSourcesPanel } from "../panels/datasources-panel";
@@ -150,7 +150,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
           </div>
           <TooltipProvider>
             {selectedPanel === "home" && <HomePanel />}
-            {selectedPanel === "files" && <FileExplorerPanel />}
+            {/* {selectedPanel === "files" && <FileExplorerPanel />} */}
             {selectedPanel === "errors" && <ErrorsPanel />}
             {selectedPanel === "variables" && <VariablePanel />}
             {selectedPanel === "dependencies" && <DependencyGraphPanel />}
