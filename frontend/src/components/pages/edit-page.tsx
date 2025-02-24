@@ -2,9 +2,11 @@
 import { EditApp } from "@/core/edit-app";
 import { AppChrome } from "../editor/chrome/wrapper/app-chrome";
 import { CommandPalette } from "../editor/controls/command-palette";
-import type { AppConfig, UserConfig } from "@/core/config/config-schema";
 import { KnownQueryParams } from "@/core/constants";
-
+import type { UserConfig } from "@/core/config/config-schema";
+import type { AppConfig } from "@/core/config/config-schema";
+import posthog from "posthog-js";
+import { useEffect } from "react";
 interface Props {
   userConfig: UserConfig;
   appConfig: AppConfig;
@@ -16,6 +18,12 @@ const hideChrome = (() => {
 })();
 
 const EditPage = (props: Props) => {
+  useEffect(() => {
+    posthog.capture("notebook_opened", {
+      props: props.appConfig || "unknown",
+    });
+  }, [props.appConfig]);
+
   if (hideChrome) {
     return (
       <>
