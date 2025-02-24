@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sendShutdown } from "@/core/network/requests";
 
 export default function HomePanel() {
     const url = new URL(window.location.href);
@@ -10,7 +11,6 @@ export default function HomePanel() {
 
     const handleConfirm = () => {
         console.log("handleConfirm", id, name, notebook_id);
-
         // notebook/d3593113-a04d-43f2-a6d6-491fc14971a1/settings?name=posthog-recipe.py
         
         const notebookUrl = isDev ? 
@@ -19,6 +19,7 @@ export default function HomePanel() {
             `https://trycosmic.ai/dashboard/notebook/${notebook_id}/settings?name=${name}`;
 
         try {
+            sendShutdown();
             window.location.replace(notebookUrl);
         } catch (e) {
             setError('Failed to load notebook. Please try again later.');
