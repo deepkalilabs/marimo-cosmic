@@ -5,8 +5,10 @@ import { CommandPalette } from "../editor/controls/command-palette";
 import { KnownQueryParams } from "@/core/constants";
 import type { UserConfig } from "@/core/config/config-schema";
 import type { AppConfig } from "@/core/config/config-schema";
-import posthog from "posthog-js";
 import { useEffect } from "react";
+
+declare const posthog: any;
+
 interface Props {
   userConfig: UserConfig;
   appConfig: AppConfig;
