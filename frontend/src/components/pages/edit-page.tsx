@@ -5,6 +5,7 @@ import { CommandPalette } from "../editor/controls/command-palette";
 import { KnownQueryParams } from "@/core/constants";
 import type { UserConfig } from "@/core/config/config-schema";
 import type { AppConfig } from "@/core/config/config-schema";
+import { useEffect } from "react";
 
 interface Props {
   userConfig: UserConfig;
@@ -17,6 +18,14 @@ const hideChrome = (() => {
 })();
 
 const EditPage = (props: Props) => {
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).posthog) {
+      (window as any).posthog.capture("notebook_opened", {
+        props: props.appConfig || "unknown",
+      });
+    }
+  }, [props.appConfig]);
+
   if (hideChrome) {
     return (
       <>
