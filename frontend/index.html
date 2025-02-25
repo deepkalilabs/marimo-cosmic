@@ -25,16 +25,9 @@
       posthog.init('phc_KAUEKfrwf3F7HhNqvaNmV7Y3Mf0FP1gwVXLE1MJ2dax', {
           api_host: 'https://us.i.posthog.com',
           person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
-          autocapture: {
-              element_selectors: [
-                  'data-testid',
-                  'data-marimo-id',
-                  'data-marimo-component',
-                  'data-marimo-source',
-                  'aria-label',
-                  'title'
-              ]
-          }
+          autocapture: true,
+          capture_pageview: true,
+          capture_pageleave: true,
       })
   </script>
 
