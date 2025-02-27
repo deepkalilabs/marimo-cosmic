@@ -4,9 +4,9 @@ FROM python:3.13-slim AS base
 # Install make and necessary build tools
 RUN apt-get update && apt-get install -y \
     make \
-    nodejs \
-    npm \
-    && npm install -g pnpm \
+    # nodejs \
+    # npm \
+    # && npm install -g pnpm \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m appuser

@@ -61,7 +61,8 @@
           if (window.location.hostname.includes("trycosmic.ai")) {
             response = await fetch(`https://ide.trycosmic.ai/edit${searchParamsString}`);
           } else {
-            response = await fetch(`http://localhost:2718/${searchParamsString}`);
+            console.log("🔍 Fetching from localhost");
+            response = await fetch(`http://localhost:3002/${searchParamsString}`);
             // response = await fetch(`https://ide.trycosmic.ai/edit${searchParamsString}`);
           }
           

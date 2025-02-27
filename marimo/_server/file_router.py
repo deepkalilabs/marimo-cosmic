@@ -10,12 +10,18 @@ from typing import TYPE_CHECKING, Generator, List, Optional
 
 from marimo import _loggers
 from marimo._config.config import WidthType
+from marimo._runtime.requests import SerializedQueryParams
 from marimo._server.api.status import HTTPException, HTTPStatus
 from marimo._server.file_manager import AppFileManager
 from marimo._server.files.os_file_system import natural_sort_file
 from marimo._server.models.files import FileInfo
 from marimo._server.models.home import MarimoFile
+from marimo._types.ids import SessionId
 from marimo._utils.marimo_path import MarimoPath
+from helpers.backend.supabase import client
+from helpers.backend.aws.s3 import s3
+import tempfile
+import subprocess
 
 if TYPE_CHECKING:
     from types import FrameType
@@ -25,6 +31,8 @@ LOGGER = _loggers.marimo_logger()
 # Some unique identifier for a file
 MarimoFileKey = str
 
+class FileImportError(Exception):
+    pass
 
 class AppFileRouter(abc.ABC):
     """
@@ -79,10 +87,43 @@ class AppFileRouter(abc.ABC):
         key = self.get_unique_file_key()
         assert key is not None, "Expected a single file"
         return self.get_file_manager(key, default_width)
+    
+    def fix_import_file_name(self, name: str) -> str:
+        if " " in name:
+            name = name.replace(" ", "_")
+        if "." in name:
+            name = name.split(".")[0]
+        return (name + ".py", name + ".ipynb")
+    
+    def import_notebook_from_s3(self, query_params: SerializedQueryParams) -> str:
+        marimo_name, notebook_name = self.fix_import_file_name(query_params.get('file'))
+        notebook_id = query_params.get('notebook_id')
+        user_id = query_params.get('user_id')
+
+        s3_file_url = s3.get_notebook_file_path(notebook_id, user_id, notebook_name)        
+        s3_response = s3.load_notebook(s3_file_url)
+
+        notebook_contents, status_code, message = s3_response['response'], s3_response['statusCode'], s3_response['message']
+
+        if status_code != 200:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Fetching notebook {notebook_name} from s3 failed with message {message}",
+            )
+
+        temp_file = tempfile.NamedTemporaryFile(suffix='.ipynb', delete=False)
+        with open(temp_file.name, 'w') as f:
+            f.write(notebook_contents)
+        
+        subprocess.run(['marimo', 'convert', temp_file.name, '-o', marimo_name])
+
+        return marimo_name
+        
 
     def get_file_manager(
         self,
         key: MarimoFileKey,
+        query_params: SerializedQueryParams,
         default_width: WidthType | None = None,
     ) -> AppFileManager:
         """
@@ -91,9 +132,23 @@ class AppFileRouter(abc.ABC):
         if key.startswith(AppFileRouter.NEW_FILE):
             return AppFileManager(None, default_width)
 
-        if not os.path.exists(key):
-            f = open(key, "w")
-            f.close()
+        if not os.path.exists(key) and query_params.get('notebook_id') is not None:
+            if query_params.get('imported') == 'true':
+                try:
+                    filename = self.import_notebook_from_s3(query_params)
+                    return AppFileManager(filename, default_width)
+                except FileImportError as e:
+                    LOGGER.warn("Error creating local notebook from s3: %s", e)
+                    return AppFileManager(key, default_width)
+                except Exception as e:
+                    LOGGER.warn("Error creating local notebook from s3: %s", e)
+                    raise e
+            elif query_params.get('template') == 'true':
+                pass 
+            else:
+                f = open(key, "w")
+                f.close()
+                return AppFileManager(key, default_width)
 
         if os.path.exists(key):
             return AppFileManager(key, default_width)

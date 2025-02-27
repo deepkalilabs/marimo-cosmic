@@ -52,7 +52,8 @@ dependencies = [
     # for packaging.version; not sure what the lower bound is.
     "packaging",
     "boto3", 
-    "supabase"
+    "supabase",
+    "python-dotenv"
 ]
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -20,6 +20,10 @@ export const KnownQueryParams = {
    */
   sessionId: "session_id",
   /**
+   * Notebook ID for the current notebook
+   */
+  notebookId: "notebook_id",
+  /**
    * Kiosk mode. If the editor is running in kiosk mode
    */
   kiosk: "kiosk",

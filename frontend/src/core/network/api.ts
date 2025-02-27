@@ -11,10 +11,16 @@ const getServerTokenOnce = once(() => {
 
 function getBaseUriWithoutQueryParams(): string {
   // Remove query params and hash
-  const url = new URL(document.baseURI);
-  url.search = "";
-  url.hash = "";
-  return url.toString();
+  let url = document.baseURI;
+  if (document.baseURI.includes("localhost")) {
+    url = `http://localhost:2718/`;
+  } 
+  console.log("🔍 url", url);
+
+  const urlObj = new URL(url);
+  urlObj.search = "";
+  urlObj.hash = "";
+  return urlObj.toString();
 }
 
 /**

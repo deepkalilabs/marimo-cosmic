@@ -1,12 +1,12 @@
 import marimo
 
-__generated_with = "0.10.17"
+__generated_with = "0.11.7"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
-    from cosmic.connectors import PostHogService
+    from cosmic_sdk.connectors import PostHogService
     from datetime import datetime, timezone, timedelta
     import io
     import base64
@@ -118,9 +118,6 @@ def _(get_posthog_churn_data, get_posthog_results, initialize_posthog):
 
     class EntrypointParams(BaseModel):
         date: str
-        api_key: str
-        project_id: str
-
 
     def entrypoint(params: EntrypointParams):
         posthog_service = initialize_posthog(params.api_key, params.project_id)
@@ -136,13 +133,11 @@ def _(get_posthog_churn_data, get_posthog_results, initialize_posthog):
 @app.cell
 def _(EntrypointParams, datetime, entrypoint, timedelta, timezone):
     start_date = str((datetime.now(timezone.utc) - timedelta(days=90)).date())
-    api_key = ""
-    project_id = ""
     params = EntrypointParams(
-        date=start_date, api_key=api_key, project_id=project_id
+        date=start_date
     )
     print(entrypoint(params))
-    return api_key, params, project_id, start_date
+    return params, start_date
 
 
 @app.cell
