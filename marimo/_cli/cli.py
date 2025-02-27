@@ -166,7 +166,7 @@ sandbox_message = (
 @click.option(
     "-l",
     "--log-level",
-    default="WARN",
+    default="DEBUG",
     type=click.Choice(
         ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"], case_sensitive=False
     ),

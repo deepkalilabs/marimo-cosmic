@@ -4,11 +4,10 @@ import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { JSDOM } from "jsdom";
 
-
 const isDev = process.env.NODE_ENV === "development";
 
 const SERVER_PORT = process.env.SERVER_PORT || 2718;
-const HOST = isDev ? process.env.HOST || "127.0.0.1" : "ide.trycosmic.ai/edit";
+const HOST = isDev ? process.env.HOST || "localhost" : "ide.trycosmic.ai/edit";
 const TARGET = isDev ? `http://${HOST}:${SERVER_PORT}` : `https://${HOST}`;
 const isStorybook = process.env.npm_lifecycle_script?.includes("storybook");
 const isPyodide = process.env.PYODIDE === "true";
@@ -33,90 +32,59 @@ const htmlDevPlugin = (): Plugin => {
         );
       }
 
-//       if (isPyodide) {
-//         const modeFromUrl = ctx.originalUrl?.includes("mode=read")
-//           ? "read"
-//           : "edit";
-//         html = html.replace("{{ base_url }}", "");
-//         html = html.replace("{{ title }}", "marimo");
-//         html = html.replace(
-//           "{{ user_config }}",
-//           JSON.stringify({
-//             // Add/remove user config here while developing
-//             // runtime: {
-//             //   auto_instantiate: false,
-//             // },
-//           }),
-//         );
-//         html = html.replace("{{ app_config }}", JSON.stringify({}));
-//         html = html.replace("{{ server_token }}", "");
-//         if (process.env.VITE_MARIMO_VERSION) {
-//           // If VITE_MARIMO_VERSION is defined, pull the local version of marimo
-//           html = html.replace("{{ version }}", "local");
-//         } else {
-//           // Otherwise, pull the latest version of marimo from PyPI
-//           html = html.replace("{{ version }}", "latest");
+//       let serverHtml: string;
+//       try {
+//         console.log("fetching from", TARGET);
+//         const serverHtmlResponse = await fetch(TARGET);
+
+//         if (!serverHtmlResponse.ok) {
+//           throw new Error("Failed to fetch");
 //         }
-//         html = html.replace("{{ filename }}", "notebook.py");
-//         html = html.replace("{{ mode }}", modeFromUrl);
-//         html = html.replace(/<\/head>/, "<marimo-wasm></marimo-wasm></head>");
-//         return html;
+//         serverHtml = await serverHtmlResponse.text();
+//       } catch (e) {
+//         console.error(
+//           `Failed to connect to a marimo server at ${TARGET + ctx.originalUrl}`,
+//         );
+//         console.log(`
+// A marimo server may not be running.
+// Run \x1b[32mmarimo edit --no-token --headless\x1b[0m in another terminal to start the server.
+
+// If the server is already running, make sure it is using port ${SERVER_PORT} with \x1b[1m--port=${SERVER_PORT}\x1b[0m.
+//         `);
+//         return `
+//         <html>
+//           <body style="padding: 2rem; font-family: system-ui, sans-serif; line-height: 1.5;">
+//             <div style="max-width: 500px; margin: 0 auto;">
+//               <h2 style="color: #e53e3e">Server Connection Error</h2>
+
+//               <p>
+//                 Could not connect to marimo server at:<br/>
+//                 <code style="background: #f7f7f7; padding: 0.2rem 0.4rem; border-radius: 4px;">
+//                   ${TARGET + ctx.originalUrl}
+//                 </code>
+//               </p>
+
+//               <div style="background: #f7f7f7; padding: 1.5rem; border-radius: 8px;">
+//                 <div>To start the server, run:</div>
+//                 <code style="color: #32CD32; font-weight: 600;">
+//                   marimo edit --no-token --headless
+//                 </code>
+//               </div>
+
+//               <p>
+//                 If the server is already running, make sure it is using port
+//                 <code style="font-weight: 600;">${SERVER_PORT}</code>
+//                 with the flag
+//                 <code style="font-weight: 600;">--port=${SERVER_PORT}</code>
+//               </p>
+//             </div>
+//           </body>
+//         </html>
+//         `;
 //       }
 
-//       // fetch html from server
-      let serverHtml: string;
-      try {
-        console.log("fetching from", TARGET);
-        const serverHtmlResponse = await fetch(TARGET);
-
-        if (!serverHtmlResponse.ok) {
-          throw new Error("Failed to fetch");
-        }
-        serverHtml = await serverHtmlResponse.text();
-      } catch (e) {
-        console.error(
-          `Failed to connect to a marimo server at ${TARGET + ctx.originalUrl}`,
-        );
-        console.log(`
-A marimo server may not be running.
-Run \x1b[32mmarimo edit --no-token --headless\x1b[0m in another terminal to start the server.
-
-If the server is already running, make sure it is using port ${SERVER_PORT} with \x1b[1m--port=${SERVER_PORT}\x1b[0m.
-        `);
-        return `
-        <html>
-          <body style="padding: 2rem; font-family: system-ui, sans-serif; line-height: 1.5;">
-            <div style="max-width: 500px; margin: 0 auto;">
-              <h2 style="color: #e53e3e">Server Connection Error</h2>
-
-              <p>
-                Could not connect to marimo server at:<br/>
-                <code style="background: #f7f7f7; padding: 0.2rem 0.4rem; border-radius: 4px;">
-                  ${TARGET + ctx.originalUrl}
-                </code>
-              </p>
-
-              <div style="background: #f7f7f7; padding: 1.5rem; border-radius: 8px;">
-                <div>To start the server, run:</div>
-                <code style="color: #32CD32; font-weight: 600;">
-                  marimo edit --no-token --headless
-                </code>
-              </div>
-
-              <p>
-                If the server is already running, make sure it is using port
-                <code style="font-weight: 600;">${SERVER_PORT}</code>
-                with the flag
-                <code style="font-weight: 600;">--port=${SERVER_PORT}</code>
-              </p>
-            </div>
-          </body>
-        </html>
-        `;
-      }
-
-      const serverDoc = new JSDOM(serverHtml).window.document;
-      const devDoc = new JSDOM(html).window.document;
+//       const serverDoc = new JSDOM(serverHtml).window.document;
+//       const devDoc = new JSDOM(html).window.document;
 
 //       // Login page
 //       if (!serverHtml.includes("marimo-mode") && serverHtml.includes("login")) {
@@ -178,7 +146,7 @@ If the server is already running, make sure it is using port ${SERVER_PORT} with
       //   devDoc.head.append(style);
       // });
 
-      return `<!DOCTYPE html>\n${devDoc.documentElement.outerHTML}`;
+      // return `<!DOCTYPE html>\n${devDoc.documentElement.outerHTML}`;
     },
   };
 };

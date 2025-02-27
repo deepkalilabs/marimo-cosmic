@@ -34,7 +34,7 @@ def log_level_string_to_int(level: str) -> int:
         raise ValueError("Unrecognized log level %s" % level)
 
 
-def set_level(level: str | int = logging.WARNING) -> None:
+def set_level(level: str | int = logging.DEBUG) -> None:
     global _LOG_LEVEL
     if isinstance(level, str):
         _LOG_LEVEL = log_level_string_to_int(level)

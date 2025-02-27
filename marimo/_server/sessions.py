@@ -81,6 +81,8 @@ from marimo._utils.paths import import_files
 from marimo._utils.repr import format_repr
 from marimo._utils.typed_connection import TypedConnection
 
+from helpers.backend.supabase import client
+
 LOGGER = _loggers.marimo_logger()
 
 
@@ -759,6 +761,7 @@ class SessionManager:
         self.user_config_manager = user_config_manager
         self.cli_args = cli_args
         self.redirect_console_to_browser = redirect_console_to_browser
+        self.supabase_client = client.get_supabase_client()
 
         # Auth token and Skew-protection token
         if auth_token is not None:
@@ -792,6 +795,17 @@ class SessionManager:
                 "default_width"
             ],
         )
+    
+    def persist_session_id(self, session_id: SessionId, notebook_id: str) -> None:
+        try:
+            self.supabase_client \
+                .table('notebooks') \
+                .update({'marimo_session_id': session_id}) \
+                .eq('id', notebook_id) \
+                .execute()
+        except Exception as e:
+            LOGGER.error("Error updating with session %s: %s", session_id, e)
+
 
     def create_session(
         self,
@@ -802,9 +816,13 @@ class SessionManager:
     ) -> Session:
         """Create a new session"""
         LOGGER.debug("Creating new session for id %s", session_id)
+        LOGGER.debug("File query params: %s", query_params)
+
         if session_id not in self.sessions:
+            self.persist_session_id(session_id, query_params.get('notebook_id'))
             app_file_manager = self.file_router.get_file_manager(
-                file_key,
+                query_params=query_params,
+                key=file_key,
                 default_width=self.user_config_manager.get_config()["display"][
                     "default_width"
                 ],
@@ -1088,6 +1106,13 @@ class SessionManager:
             )
 
         session.close()
+
+        self.supabase_client \
+            .table('notebooks') \
+            .update({'marimo_session_id': None}) \
+            .eq('marimo_session_id', session_id) \
+            .execute()
+
         if session_id in self.sessions:
             del self.sessions[session_id]
         return True

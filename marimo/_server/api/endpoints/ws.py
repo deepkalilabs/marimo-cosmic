@@ -51,7 +51,6 @@ SESSION_QUERY_PARAM_KEY = "session_id"
 FILE_QUERY_PARAM_KEY = "file"
 KIOSK_QUERY_PARAM_KEY = "kiosk"
 
-
 class WebSocketCodes(IntEnum):
     ALREADY_CONNECTED = 1003
     NORMAL_CLOSE = 1000
