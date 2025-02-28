@@ -118,8 +118,27 @@ class AppFileRouter(abc.ABC):
         subprocess.run(['marimo', 'convert', temp_file.name, '-o', marimo_name])
 
         return marimo_name
-        
+    
+    def import_template_from_s3(self, filename: str, query_params: SerializedQueryParams) -> str:
+        template_id = query_params.get('template_id')
 
+        supabase_client = client.get_supabase_client()
+        template_uri = supabase_client.table('templates').select('s3_file_uri').eq('id', template_id).execute().data[0]['s3_file_uri']
+        s3_response = s3.load_notebook(template_uri)
+
+        notebook_contents, status_code, message = s3_response['response'], s3_response['statusCode'], s3_response['message']
+
+        if status_code != 200:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Fetching notebook {filename} from s3 failed with message {message}",
+            )
+        
+        with open(filename, 'w') as f:
+            f.write(notebook_contents)
+        
+        return filename
+        
     def get_file_manager(
         self,
         key: MarimoFileKey,
@@ -131,6 +150,8 @@ class AppFileRouter(abc.ABC):
         """
         if key.startswith(AppFileRouter.NEW_FILE):
             return AppFileManager(None, default_width)
+        
+        LOGGER.info("query_params: %s", query_params)
 
         if not os.path.exists(key) and query_params.get('notebook_id') is not None:
             if query_params.get('imported') == 'true':
@@ -141,10 +162,19 @@ class AppFileRouter(abc.ABC):
                     LOGGER.warn("Error creating local notebook from s3: %s", e)
                     return AppFileManager(key, default_width)
                 except Exception as e:
+                    if os.path.exists(key):
+                        os.remove(key)
                     LOGGER.warn("Error creating local notebook from s3: %s", e)
                     raise e
-            elif query_params.get('template') == 'true':
-                pass 
+            elif query_params.get('template_id') is not None:
+                try:
+                    filename = self.import_template_from_s3(key, query_params)
+                    return AppFileManager(filename, default_width)
+                except Exception as e:
+                    if os.path.exists(key):
+                        os.remove(key)
+                    LOGGER.warn("Error creating local notebook from s3: %s", e)
+                    raise e
             else:
                 f = open(key, "w")
                 f.close()

@@ -203,7 +203,7 @@ export function useMarimoWebSocket(opts: {
         return;
       case "data-source-connections":
         addDataSourceConnection(msg.data);
-      return;
+        return;
 
       case "reconnected":
         return;
